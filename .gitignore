@@ -20,8 +20,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 .tox
-.venv*
-/dist
+.venv*/
+/build/
+/dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # Translations
 *.mo

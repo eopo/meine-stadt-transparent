@@ -1,5 +1,5 @@
 # Stage 1: Build the frontend assets
-FROM node:18 AS front-end
+FROM node:18-bookworm-slim AS front-end
 
 ENV NODE_ENV=production
 WORKDIR /app
@@ -15,24 +15,24 @@ COPY mainapp/assets /app/mainapp/assets
 RUN npm run build:prod && mkdir -p mainapp/templates/email/ && npm run build:email
 
 # Stage 2: Build the .venv folder
-FROM python:3.11-slim-bullseye AS venv-build
+FROM python:3.11-slim-bookworm AS venv-build
 
 RUN apt-get update && \
     apt-get install -y curl gnupg git default-libmysqlclient-dev libmagickwand-dev poppler-utils libssl-dev libpq-dev gettext && \
-    curl -sSL https://install.python-poetry.org | python3 - --version 1.4.0
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 
 COPY pyproject.toml /app/pyproject.toml
-COPY poetry.lock /app/poetry.lock
+COPY uv.lock /app/uv.lock
 WORKDIR /app
 
-# Poetry needs the __init__.py files
 RUN mkdir cms importer mainapp meine_stadt_transparent && \
     touch Readme.md cms/__init__.py importer/__init__.py mainapp/__init__.py meine_stadt_transparent/__init__.py && \
-    $HOME/.local/bin/poetry config virtualenvs.in-project true && \
-    $HOME/.local/bin/poetry install --only main -E import-json
+    uv sync --frozen --no-dev --extra import-json --extra mysql --no-install-project
 
 # Stage 3: The actual container
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim-bookworm
 
 ENV PYTHONUNBUFFERED=1
 
