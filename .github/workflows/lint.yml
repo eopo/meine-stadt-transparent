@@ -1,4 +1,4 @@
-name: Tests
+name: Lint
 
 on:
   push:
@@ -29,3 +29,15 @@ jobs:
           pip install ruff
       - name: Run Ruff
         run: ruff .
+
+  # Single stable check name for branch protection, independent of individual lint jobs.
+  lint-result:
+    name: Lint OK
+    runs-on: ubuntu-latest
+    needs: [ black-format, ruff ]
+    if: always()
+    steps:
+      - name: Check lint jobs result
+        run: |
+          test "${{ needs['black-format'].result }}" = "success"
+          test "${{ needs.ruff.result }}" = "success"
