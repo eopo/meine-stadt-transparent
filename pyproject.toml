@@ -6,7 +6,7 @@ authors = [
     { name = "Tobias Hößl", email = "tobias@hoessl.eu" },
     { name = "Konstantin Schütze", email = "konstin@mailbox.org" },
 ]
-license = "MIT"
+license = { file = "license" }
 readme = "Readme.md"
 requires-python = ">=3.8,<4.0"
 dependencies = [
